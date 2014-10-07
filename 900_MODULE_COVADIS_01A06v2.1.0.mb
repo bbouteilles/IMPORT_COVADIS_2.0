@@ -1,0 +1,1380 @@
+Print "-"
+Print "Module 1 à 6 - Version 2.1.0 du 12 mai 2014 - 900_MODULE_COVADIS_01A06v2.1.0.mb"
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure UN
+' Créer la table N_DOCUMENT_URBA_COM_038.TAB et la sauvegarder dans la Géobase
+'--------------------------------------------------------------------------------------
+
+reponsetable = ask ("1- Voulez-vous générer la table non géographique N_DOCUMENT_URBA_038.TAB de la commune "+INSEECOMMUNE+" et l'intégrer dans la table départementale de la Géobase ?", "OUI", "NON")
+
+	Print "--"
+	Print "1-Intégration du document "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" de la commune "+INSEECOMMUNE+" dans les couches N_DOCUMENT_URBA_038.TAB et N_DOCUMENT_URBA_COM_038.TAB de la Géobase accepté"
+	Print "--"
+
+	If reponsetable = "T" then
+
+		EXTENSION = ""
+
+			If FORMATCOUCHE = "shp"	then
+				Run Program "cmd.exe /K COPY "+REPERTOIRESIG+"N_DOCUMENT_URBA_038.* "+REPCOVADIS
+				Print "Copie de la table d'origine "+REPERTOIRESIG+"N_DOCUMENT_URBA_038.* vers "+REPCOVADIS
+			Else
+			End If
+
+		Create Table "N_DOCUMENT_URBA_038" (ID_MAP Char(5),IDURBA Char(20),IDURBAPREC Char(20),TYPEDOC Char(3),ETAT Char(2),VERSION Char(20),DATAPPRO Date,DATEFIN Date,INTERCO Logical,SIREN Char(9),NOMREG Char(80),URLREG Char(254),NOMPLAN Char(80),URLPLAN Char(254),SERVICEWEB Char(254),NOMREF Char(254),DATEREF Date) file REPCOVADIS+"N_DOCUMENT_URBA_038.TAB" TYPE NATIVE Charset "WindowsLatin1" 
+		Create Index On N_DOCUMENT_URBA_038 (ID_MAP)
+		Create Index On N_DOCUMENT_URBA_038 (IDURBA)
+		Print "1-Création de la table récapitulative N_DOCUMENT_URBA_038 dans le répertoire :"+REPCOVADIS
+	
+		Insert Into N_DOCUMENT_URBA_038 (ID_MAP, IDURBA, IDURBAPREC, TYPEDOC, ETAT, VERSION, DATAPPRO, SIREN, NOMREG, NOMPLAN , NOMREF , DATEREF) Values (INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO, INSEECOMMUNE+"_"+DATEDOCURBAPRECDENT, TYPEDOCU, ETATDOC, NOVERSION, ANNEEAPPRO+MOISAPPRO+JOURAPPRO, NOSIREN, INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf", INSEECOMMUNE+"_docgraphiques_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf", REFENTIEL, ANNEEREFENTIEL+"0101")
+		Print "Valeures ajoutées : "+INSEECOMMUNE+" & "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" & "+DATEDOCURBAPRECDENT+" & "+TYPEDOCU+" & "+ETATDOC+" & "+ NOVERSION+" & "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" & "+ NOSIREN+" & "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf & "+INSEECOMMUNE+"_docgraphiques_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf & "+REFENTIEL+" & "+ANNEEREFENTIEL+"0101"
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_DOCUMENT_URBA_038.TAB","F",1, AGENT )
+	
+		Commit Table N_DOCUMENT_URBA_038 Interactive
+		Print "Sauvegarde de la table récapitulative N_DOCUMENT_URBA_038.TAB"
+
+		Pack table "N_DOCUMENT_URBA_038" Graphic Data
+		Print "Compactage de la table récapitulative N_DOCUMENT_URBA_038.TAB"
+	
+		Close Table N_DOCUMENT_URBA_038 Interactive
+		Print "Fermeture de la table récapitulative N_DOCUMENT_URBA_038.TAB"
+	
+		Print "1-Création de la Table récapitulative N_DOCUMENT_URBA_038.TAB dans le répertoire : "+REPCOVADIS+" réalisée"
+
+		'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+		'        Procédure UN BIS
+		' Ajouter la commune dans la table départementale N_DOCUMENT_URBA_COM_038.TAB et la sauvegarder dans la Géobase
+		'--------------------------------------------------------------------------------------	
+	
+		Print "1bis-Ajout du document : "+INSEECOMMUNE+"_"+DATEDOCURBAPRECDENT+" dans la table départementale récapitulative N_DOCUMENT_URBA_COM_038 de la Géobase"
+	
+		Open Table GBPROD+"N_DOCUMENT_URBA_038.TAB" as N_DOCUMENT_URBA_038 Interactive
+		Print  "Ouverture de la table départementale "+GBPROD+"N_DOCUMENT_URBA_038.TAB"
+
+		Insert Into N_DOCUMENT_URBA_038 (ID_MAP, IDURBA, IDURBAPREC, TYPEDOC, ETAT, VERSION, DATAPPRO, SIREN, NOMREG, NOMPLAN , NOMREF , DATEREF , GB_IDUSER, GB_DDMOD) Values (INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO, INSEECOMMUNE+"_"+DATEDOCURBAPRECDENT, TYPEDOCU, ETATDOC, NOVERSION, ANNEEAPPRO+MOISAPPRO+JOURAPPRO, NOSIREN, INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf", INSEECOMMUNE+"_docgraphiques_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf", REFENTIEL, ANNEEREFENTIEL+"0101" , AGENT, CurDate ())
+		Print "Valeures ajoutées : "+INSEECOMMUNE+" & "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" & "+DATEDOCURBAPRECDENT+" & "+TYPEDOCU+" & "+ETATDOC+" & "+ NOVERSION+" & "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" & "+ NOSIREN+" & "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf & "+INSEECOMMUNE+"_docgraphiques_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf & "+REFENTIEL+" & "+ANNEEREFENTIEL+"0101"+" & "+ AGENT+" & "+ CurDate ()
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_DOCUMENT_URBA_038.TAB","T",1, AGENT )
+
+		Commit Table N_DOCUMENT_URBA_038 Interactive
+		Print "Sauvegarde de la table départementale N_DOCUMENT_URBA_038.TAB"
+
+		Pack table "N_DOCUMENT_URBA_038" Graphic Data
+		Print "Compactage de la table départementale N_DOCUMENT_URBA_038.TAB"
+	
+	
+		'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+		'        Procédure UN TER
+		' Intégrer la table PLU.SHP ou POS.SHP dans la couche N_DOCUMENT_URBA_COM_038.TAB
+		'--------------------------------------------------------------------------------------
+
+		Print "--"
+		Print "1ter- Ajout du document : "+INSEECOMMUNE+"_"+DATEDOCURBAPRECDENT+" dans la table départementale récapitulative N_DOCUMENT_URBA_COM_038.TAB de la Géobase"
+		Print "--"
+
+		Open Table GBPROD+"N_DOCUMENT_URBA_COM_038.TAB" Interactive
+		Print  "Ouverture de la table "+GBPROD+"N_DOCUMENT_URBA_COM_038.TAB"
+
+		Insert Into N_DOCUMENT_URBA_COM_038 (IDURBA, INSEE, DATE_COG, GB_IDUSER, GB_DDMOD) Values (INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO, INSEECOMMUNE, Year(CurDate ())+"0101" , AGENT, CurDate ())
+		Print "Valeures ajoutées :  [ID_DOC_URBA] = "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" & [INSEE] = "+INSEECOMMUNE+" & [DATE_COG] = "+Year(CurDate ())+"0101 & [GB_IDUSER] = "+AGENT+" & [GB_DDMOD] = "+CurDate ()
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_DOCUMENT_URBA_COM_038.TAB","T",1, AGENT )
+
+		Commit Table N_DOCUMENT_URBA_COM_038 Interactive
+		Print "Sauvegarde de la table N_DOCUMENT_URBA_COM_038.TAB"
+
+		Pack table "N_DOCUMENT_URBA_COM_038" Graphic Data
+		Print "Compactage de la table N_DOCUMENT_URBA_COM_038.TAB"
+	
+		Print "1-Intégration des tables récapitulatives N_DOCUMENT_URBA_038.TAB et N_DOCUMENT_URBA_COM_038.TAB réalisée"
+		Note "1-1-Intégration des tables récapitulatives N_DOCUMENT_URBA_038.TAB et N_DOCUMENT_URBA_COM_038.TAB réalisée"
+
+	Else
+		Print "--"
+		Print "1- Intégration des tables récapitulatives N_DOCUMENT_URBA_038.TAB et N_DOCUMENT_URBA_COM_038.TAB dans la Géobase refusé"
+		Print "--"
+	End if
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure UN
+' Insertion des données dans la couche N_DOCUMENT_URBA_038.TAB
+'--------------------------------------------------------------------------------------
+
+'reponsetable = ask ("1- Voulez-vous intégrer le document "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" de la commune "+INSEECOMMUNE+" dans les couches N_DOCUMENT_URBA_038.TAB et N_DOCUMENT_URBA_COM_038.TAB de la Géobase ?", "OUI", "NON")
+
+'If reponsetable = "T" then
+
+
+'	Open Table GBPROD+"N_DOCUMENT_URBA_038.TAB" as N_DOCUMENT_URBA_038 Interactive
+'	Print  "Ouverture de la table "+GBPROD+"N_DOCUMENT_URBA_038.TAB"
+
+'	Insert Into N_DOCUMENT_URBA_038 (ID_MAP, IDURBA, IDURBAPREC, TYPEDOC, ETAT, VERSION, DATAPPRO, SIREN, NOMREG, NOMPLAN , NOMREF , DATEREF , GB_IDUSER, GB_DDMOD) Values (INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO, INSEECOMMUNE+"_"+DATEDOCURBAPRECDENT, TYPEDOCU, ETATDOC, NOVERSION, ANNEEAPPRO+MOISAPPRO+JOURAPPRO, NOSIREN, INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf", INSEECOMMUNE+"_docgraphiques_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf", REFENTIEL, ANNEEREFENTIEL+"0101" , AGENT, CurDate ())
+'	Print "Valeures ajoutées : "+INSEECOMMUNE+" & "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" & "+DATEDOCURBAPRECDENT+" & "+TYPEDOCU+" & "+ETATDOC+" & "+ NOVERSION+" & "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" & "+ NOSIREN+" & "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf & "+INSEECOMMUNE+"_docgraphiques_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf & "+REFENTIEL+" & "+ANNEEREFENTIEL+"0101"+" & "+ AGENT+" & "+ CurDate ()
+'	Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_DOCUMENT_URBA_038.TAB","T",1, AGENT )
+
+'	Commit Table N_DOCUMENT_URBA_038 Interactive
+'	Print "Sauvegarde de la table N_DOCUMENT_URBA_038.TAB"
+'
+'	Pack table "N_DOCUMENT_URBA_038" Graphic Data
+'	Print "Compactage de la table N_DOCUMENT_URBA_038.TAB"
+	
+	'	Close Table N_DOCUMENT_URBA_038 Interactive
+	'	Print "Fermeture de la table N_DOCUMENT_URBA_038.TAB"
+
+	'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+	'        Procédure UN BIS
+	' Insertion des données dans la couche N_DOCUMENT_URBA_COM_038.TAB
+	'--------------------------------------------------------------------------------------
+
+'	Print "--"
+'	Print "1bis- Intégration du document "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" de la commune "+INSEECOMMUNE+" dans la couche N_DOCUMENT_URBA_COM_038.TAB de la Géobase"
+
+'	Print "--"
+
+'	Open Table GBPROD+"N_DOCUMENT_URBA_COM_038.TAB" Interactive
+'	Print  "Ouverture de la table "+GBPROD+"N_DOCUMENT_URBA_COM_038.TAB"
+
+'	Insert Into N_DOCUMENT_URBA_COM_038 (IDURBA, INSEE, DATE_COG, GB_IDUSER, GB_DDMOD) Values (INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO, INSEECOMMUNE, Year(CurDate ())+"0101" , AGENT, CurDate ())
+'	Print "Valeures ajoutées :  [ID_DOC_URBA] = "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" & [INSEE] = "+INSEECOMMUNE+" & [DATE_COG] = "+Year(CurDate ())+"0101 & [GB_IDUSER] = "+AGENT+" & [GB_DDMOD] = "+CurDate ()
+'	Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_DOCUMENT_URBA_COM_038.TAB","T",1, AGENT )
+
+'	Commit Table N_DOCUMENT_URBA_COM_038 Interactive
+'	Print "Sauvegarde de la table N_DOCUMENT_URBA_COM_038.TAB"
+
+'	Pack table "N_DOCUMENT_URBA_COM_038" Graphic Data
+'	Print "Compactage de la table N_DOCUMENT_URBA_COM_038.TAB"
+	
+'	Close Table N_DOCUMENT_URBA_COM_038 Interactive
+'	Print "Fermeture de la table N_DOCUMENT_URBA_COM_038.TAB"
+
+'	Print "1-Intégration du document "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" de la commune "+INSEECOMMUNE+" dans les tables départementales N_DOCUMENT_URBA_038.TAB et N_DOCUMENT_URBA_COM_038.TAB réalisée"
+'	Note "1-Intégration du document "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" de la commune "+INSEECOMMUNE+" dans les tables départementales N_DOCUMENT_URBA_038.TAB et N_DOCUMENT_URBA_COM_038.TAB réalisée"
+
+'Else
+'	Print "--"
+'	Print "1- Intégration du document "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" de la commune "+INSEECOMMUNE+" dans les couches N_DOCUMENT_URBA_038.TAB et N_DOCUMENT_URBA_COM_038.TAB de la Géobase refusé"
+'	Print "--"
+'End if
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure DEUX
+' Importer la table des zonages d'urbanisme de la livraison COVADIS
+'--------------------------------------------------------------------------------------
+       
+If TYPEDOCU= "CC" then
+	   
+	reponsetable = ask ("2- Voulez-vous intégrer la table communale COVADIS : N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" ?", "OUI", "NON")
+
+	If reponsetable = "T" then
+
+	reponsecorrige = ask ("2- S'agit-il de la version CORRIGEE à convertir ?", "OUI", "NON")
+
+	If reponsecorrige = "T" then
+		EXTENSION = "_CORRIGE"
+
+	Else
+		EXTENSION = ""
+
+	End if
+
+	'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+	'        Procédure DEUXCC : CARTE COMMUNALE
+	'              dans la couche communale N_SECTEUR_CCxxx_038.TAB
+	'--------------------------------------------------------------------------------------
+' testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest
+
+	Print "--"
+	Print "2- Import de la table communale "+REPERTOIRESIG+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038"+EXTENSION+"."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la Géobase accepté"
+	Print "--"
+		
+	If FORMATCOUCHE = "shp"	then
+		Register Table REPERTOIRESIG+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038"+EXTENSION+".shp" TYPE SHAPEFILE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000) PersistentCache Off regionstyle Pen (1,2,0)  Brush (2,16777215,16777215)  Into REPTEMP+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+		Print "Enregistrement de la Couche ArcVIew "+REPERTOIRESIG+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038"+EXTENSION+".shp vers la Table temporaire MapINFO "+REPTEMP+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+		Open Table REPTEMP+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB" as TEMPORAIRE
+		Print "Ouverture de la Table temporaire "+REPTEMP+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+			
+	Else
+		Open Table REPERTOIRESIG+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB" as TEMPORAIRE
+		Print "Ouverture de la Table "+REPERTOIRESIG+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB"
+			
+	End If
+		
+' débug ------------------------------------------------------------------------------------------------------
+	Print "Debug : Commit Table TEMPORAIRE As "+REPCOMMUNAL+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+' débug ------------------------------------------------------------------------------------------------------
+	Commit Table TEMPORAIRE As REPCOMMUNAL+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB" TYPE NATIVE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000)
+	Print "Sauvegarde de la Table temporaire dans la Géobase de Consultation à l'emplacement : "+REPCOMMUNAL+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+	Close Table TEMPORAIRE
+		
+	Open Table REPCOMMUNAL+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB" Interactive
+	Print "Ouverture de la table "+REPCOMMUNAL+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+			
+	' peut-être mettre en place ici une requête permettant d'afficher les champs de valeur'
+		
+	reponsetable = ask ("2- Voulez-vous forcer la mise à jour des données attributaires de N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+	If reponsetable = "T" then
+	Print "2-Acceptation pour forcer la mise à jour des données attributaires de N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+		
+		reponsetable = ask ("2- Voulez-vous mettre à jour le champs [IDURBA] avec la valeur : "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" ?", "OUI", "NON")
+		If reponsetable = "T" then
+			Update "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" Set IDURBA = INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			Print "2-Acceptation pour mise à jour du champs [IDURBA] avec la valeur : "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+		Else
+			Print "2-Refus de mise à jour du champs [IDURBA] avec la valeur : "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+		End If
+
+		reponsetable = ask ("2- Voulez-vous mettre à jour le champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+		If reponsetable = "T" then
+			Update "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" Set URLFIC = "http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Print "Mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+		Else
+			Print "2-Refus de mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+		End If
+
+		reponsetable = ask ("2- Voulez-vous mettre à jour le champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+		If reponsetable = "T" then
+			Update "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" Set NOMFIC = INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Print "2-Acceptation pour mise à jour du champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+		Else
+			Print "2-Refus de mise à jour du champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+		End If
+		
+		reponsetable = ask ("2- Voulez-vous mettre à jour le champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" ?", "OUI", "NON")
+		If reponsetable = "T" then
+			Update "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" Set DATAPPRO = ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			Print "2-Acceptation pour mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+		Else
+			Print "2-Refus de mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+		End If
+	
+		reponsetable = ask ("2- Voulez-vous mettre à jour le champs [INSEE] avec la valeur : "+INSEECOMMUNE+" ?", "OUI", "NON")
+		If reponsetable = "T" then
+			Update "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" Set INSEE = INSEECOMMUNE
+			Print "2-Acceptation pour mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+		Else
+			Print "2-Refus de mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+		End If
+		
+	Else
+		Print "2-Refus de forcer la mise à jour des données attributaires de N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+	End If
+		
+	Commit Table "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" Interactive
+	Print "Sauvegarde de la table N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+
+	Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB","F",TableInfo ( "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+	Pack table "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" Graphic Data
+	Print "Compactage de la table N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038"
+		
+	'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+	'        Procédure DEUXCCBIS : table communale N_SECTEUR_CCxxx_038.TAB de la Géobase 
+	'              dans la couche départementale N_SECTEUR_CC_038.TAB
+	'--------------------------------------------------------------------------------------
+		
+	If ETATDOC="03" then
+		Print "--"
+		Print "2bis- Ajout de la table communale N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038 à la couche départementale N_SECTEUR_CC_038.TAB car document opposable"
+		Print "--"
+
+		Open Table GBPROD+"N_SECTEUR_CC_038.TAB" Interactive
+		Print "Ouverture de la Table "+GBPROD+"N_SECTEUR_CC_038.TAB"
+
+		select * from "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" into Selection_a_verser
+		Print "Selection de tous les objets de la couche N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+		Insert Into N_SECTEUR_CC_038 ( ID_MAP,IDURBA,LIBELLE,TYPESECT,FERMRECO,DESTDOMI,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,IDURBA,LIBELLE,TYPESECT,FERMRECO,DESTDOMI,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+		Print "Ajout des "+TableInfo ( "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_SECTEUR_CC_038.TAB"
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_SECTEUR_CC_038.TAB","T",TableInfo ( "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+		Select * from N_SECTEUR_CC_038 where INSEE=INSEECOMMUNE And GB_IDUSER ="" into Selection_MAJ 
+	
+		Update Selection_MAJ Set GB_IDUSER = AGENT
+		Print "Mise-à-jour du champs [GB_IDUSER] avec la valeur "+AGENT+" pour la séléction"
+
+		Update Selection_MAJ Set GB_DDMOD = CurDate( )
+		Print "Mise-à-jour du champs [GB_DDMOD] avec la date du jour pour la séléction"
+
+		Commit Table N_SECTEUR_CC_038 Interactive
+			
+		Print "2bis- Intégration de la Table N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038 dans la table départementale N_SECTEUR_CC_038.TAB réalisée pour "+TableInfo ( "N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+	Else
+		Print "--"
+		Print "2bis- Pas d'Ajout de la table communale N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038 à la couche départementale N_SECTEUR_CC_038.TAB car document non opposable"
+		Print "--"
+
+	End if
+	
+	Note "2- Intégration de la table communale COVADIS : "+"N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038"+EXTENSION+"."+FORMATCOUCHE+" réalisée pour "+TableInfo("N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+		
+'	Close Table N_SECTEUR_CC_038 Interactive
+'	Print "Fermeture de la table N_SECTEUR_CC_038.TAB"
+'	Close Table N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038" Interactive
+'	Print "Fermeture de la table N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB"
+
+Else
+	Print "--"
+	Print "2- Intégration de la N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" dans la table communale N_SECTEUR_"+TYPEDOCU+"_"+INSEECOMMUNE+"_038.TAB et la table départementale N_SECTEUR_CC_038.TAB refusée"
+	Print "--"
+	
+End if
+	
+'testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest			
+Else
+	
+	reponsetable = ask ("2- Voulez-vous intégrer la table communale COVADIS : "+"N_ZONE_URBA_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" ?", "OUI", "NON")
+
+	If reponsetable = "T" then
+
+	reponsecorrige = ask ("2- S'agit-il de la version CORRIGEE à convertir ?", "OUI", "NON")
+
+	If reponsecorrige = "T" then
+		EXTENSION = "_CORRIGE"
+
+	Else
+		EXTENSION = ""
+
+	End if
+	
+		'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+		'        Procédure DEUX : N_ZONE_URBA_XXXXX_038 (esri ou mapinfo)
+		'              dans la couche communale N_ZONE_URBA_38xxx_038.TAB
+		'--------------------------------------------------------------------------------------
+		
+		Print "--"
+		Print "2- Import de la table communale "+REPERTOIRESIG+"N_ZONE_URBA_"+INSEECOMMUNE+"_038"+EXTENSION+"."+FORMATCOUCHE+" de la commune "+Right$(INSEECOMMUNE,3)+" dans la Géobase accepté"
+		Print "--"
+		
+		If FORMATCOUCHE = "shp"	then
+			Register Table REPERTOIRESIG+"N_ZONE_URBA_"+INSEECOMMUNE+"_038"+EXTENSION+".shp" TYPE SHAPEFILE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000) PersistentCache Off regionstyle Pen (1,2,0)  Brush (2,16777215,16777215)  Into REPTEMP+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+			Print "Enregistrement de la Couche ArcVIew "+REPERTOIRESIG+"N_ZONE_URBA_"+INSEECOMMUNE+"_038"+EXTENSION+".shp vers la Table temporaire MapINFO "+REPTEMP+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+			Open Table REPTEMP+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB" as TEMPORAIRE
+			Print "Ouverture de la Table temporaire "+REPTEMP+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+			
+		Else
+			Open Table REPERTOIRESIG+"N_ZONE_URBA_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB" as TEMPORAIRE
+			Print "Ouverture de la Table "+REPERTOIRESIG+"N_ZONE_URBA_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB"
+			
+		End If
+		
+' débug ------------------------------------------------------------------------------------------------------
+		Print "Debug : Commit Table TEMPORAIRE As "+REPCOMMUNAL+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+' débug ------------------------------------------------------------------------------------------------------
+		Commit Table TEMPORAIRE As REPCOMMUNAL+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB" TYPE NATIVE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000)
+		Print "Sauvegarde de la Table temporaire dans la Géobase de Consultation à l'emplacement : "+REPCOMMUNAL+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+		Close Table TEMPORAIRE
+		
+		Open Table REPCOMMUNAL+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB" Interactive
+		Print "Ouverture de la table "+REPCOMMUNAL+"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+			
+		' peut-être mettre en place ici une requête permettant d'afficher les champs de valeur'
+		
+		reponsetable = ask ("2- Voulez-vous forcer la mise à jour des données attributaires de  N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+		If reponsetable = "T" then
+		Print "2-Acceptation pour forcer la mise à jour des données attributaires de  N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+		
+			reponsetable = ask ("2- Voulez-vous mettre à jour le champs [IDURBA] avec la valeur : "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_ZONE_URBA_"+INSEECOMMUNE+"_038" Set IDURBA = INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+				Print "2-Acceptation pour mise à jour du champs [IDURBA] avec la valeur : "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			Else
+				Print "2-Refus de mise à jour du champs [IDURBA] avec la valeur : "+INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			End If
+
+' ajout
+			reponsetable = ask ("2- Voulez-vous mettre à jour le champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_ZONE_URBA_"+INSEECOMMUNE+"_038" Set URLFIC = "http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "2-Refus de mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+'fin ajout
+
+			reponsetable = ask ("2- Voulez-vous mettre à jour le champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_ZONE_URBA_"+INSEECOMMUNE+"_038" Set NOMFIC = INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "2-Acceptation pour mise à jour du champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "2-Refus de mise à jour du champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+			
+			reponsetable = ask ("2- Voulez-vous mettre à jour le champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_ZONE_URBA_"+INSEECOMMUNE+"_038" Set DATAPPRO = ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+				Print "2-Acceptation pour mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			Else
+				Print "2-Refus de mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			End If
+		
+			reponsetable = ask ("2- Voulez-vous mettre à jour le champs [INSEE] avec la valeur : "+INSEECOMMUNE+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_ZONE_URBA_"+INSEECOMMUNE+"_038" Set INSEE = INSEECOMMUNE
+				Print "2-Acceptation pour mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			Else
+				Print "2-Refus de mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			End If
+			
+			reponsetable = ask ("2- Voulez-vous mettre à jour le champs [LIBELONG] avec la valeur : [LIBELLE] ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_ZONE_URBA_"+INSEECOMMUNE+"_038" Set LIBELONG = LIBELLE
+				Print "2-Acceptation pour mise à jour du champs [LIBELONG] avec la valeur : [LIBELLE]"
+			Else
+				Print "2-Refus de mise à jour du champs [LIBELONG] avec la valeur : [LIBELLE]"
+			End If
+			
+		Else
+			Print "2-Refus de forcer la mise à jour des données attributaires de N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+		End If
+		
+		Commit Table "N_ZONE_URBA_"+INSEECOMMUNE+"_038" Interactive
+		Print "Sauvegarde de la table N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB"
+
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB","F",TableInfo ( "N_ZONE_URBA_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+		Pack table "N_ZONE_URBA_"+INSEECOMMUNE+"_038" Graphic Data
+		Print "Compactage de la table N_ZONE_URBA_"+INSEECOMMUNE+"_038"
+
+				
+		'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+		'        Procédure DEUX BIS : table communale N_ZONE_URBAxxx_038.TAB 
+		'              dans la couche départementale N_ZONE_URBA_038.TAB
+		'--------------------------------------------------------------------------------------
+
+		If ETATDOC="03" then
+			Print "--"
+			Print "2bis- Ajout de la table communale N_ZONE_URBA_"+INSEECOMMUNE+"_038 à la couche départementale N_ZONE_URBA_038.TAB car document opposable"
+			Print "--"
+
+			Open Table GBPROD+"N_ZONE_URBA_038.TAB" Interactive
+			Print "Ouverture de la Table "+GBPROD+"N_ZONE_URBA_038.TAB"
+
+' ajout version 2.1.1
+			If ColumnInfo("N_ZONE_URBA_"+INSEECOMMUNE+"_038", "COL1", COL_INFO_NAME) = "ID_MAP" or ColumnInfo("N_ZONE_URBA_"+INSEECOMMUNE+"_038", "COL1", COL_INFO_NAME) = "id_map" Then
+				select * from "N_ZONE_URBA_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_ZONE_URBA_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+			
+				Insert Into N_ZONE_URBA_038 ( ID_MAP,IDURBA,LIBELLE,LIBELONG,TYPEZONE,DESTDOMI,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,IDURBA,LIBELLE,LIBELONG,TYPEZONE,DESTDOMI,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_ZONE_URBA_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_ZONE_URBA_038.TAB"
+
+			Else
+				Alter Table "N_ZONE_URBA_"+INSEECOMMUNE+"_038" ( add ID_MAP Char(10) order ID_MAP,IDURBA,LIBELLE,LIBELONG,TYPEZONE,DESTDOMI,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID) Interactive
+				Print "Ajout du Champs [ID_MAP] Char(10)"
+				
+				select * from "N_ZONE_URBA_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Insert Into N_ZONE_URBA_038 ( ID_MAP,IDURBA,LIBELLE,LIBELONG,TYPEZONE,DESTDOMI,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,IDURBA,LIBELLE,LIBELONG,TYPEZONE,DESTDOMI,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_ZONE_URBA_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_ZONE_URBA_038.TAB"
+			End If
+' fin ajout version 2.1.1
+			
+			Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_ZONE_URBA_038.TAB","T",TableInfo ( "N_ZONE_URBA_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+			Select * from N_ZONE_URBA_038 where INSEE=INSEECOMMUNE And GB_IDUSER ="" into Selection_MAJ 
+	
+			Update Selection_MAJ Set GB_IDUSER = AGENT
+			Print "Mise-à-jour du champs [GB_IDUSER] avec la valeur "+AGENT+" pour la séléction"
+
+			Update Selection_MAJ Set GB_DDMOD = CurDate( )
+			Print "Mise-à-jour du champs [GB_DDMOD] avec la date du jour pour la séléction"
+
+			Commit Table N_ZONE_URBA_038 Interactive
+			
+			Print "2bis- Intégration de la Table N_ZONE_URBA_"+INSEECOMMUNE+"_038 dans la table départementale N_ZONE_URBA_038.TAB réalisée pour "+TableInfo ( "N_ZONE_URBA_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+		Else
+			Print "--"
+			Print "2bis- Pas d'Ajout de la table communale N_ZONE_URBA_"+INSEECOMMUNE+"_038 à la couche départementale N_ZONE_URBA_038.TAB car document non opposable"
+			Print "--"
+
+		End if
+	
+		Note "2- Intégration de la table communale COVADIS : "+"N_ZONE_URBA_"+INSEECOMMUNE+"_038"+EXTENSION+"."+FORMATCOUCHE+" réalisée pour "+TableInfo("N_ZONE_URBA_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+		
+'		Close Table N_ZONE_URBA_038 Interactive
+'		Print "Fermeture de la table N_ZONE_URBA_038.TAB"
+'		Close Table "N_ZONE_URBA"+Right$(INSEECOMMUNE,3)+"_038" Interactive
+'		Print "Fermeture de la table N_ZONE_URBA"+Right$(INSEECOMMUNE,3)+"_038.TAB"
+
+	End if
+
+Else
+	Print "--"
+	Print "2- Intégration de la N_ZONE_URBA_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" dans la table communale N_ZONE_URBA_"+INSEECOMMUNE+"_038.TAB et la table départementale N_ZONE_URBA_038.TAB refusée"
+	Print "--"
+	
+End if
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure TROIS
+' Importer la table N_PRESCRIPTION_SURF_38XXX_038.TAB de la livraison COVADIS
+'--------------------------------------------------------------------------------------
+
+If TYPEDOCU <> "CC" then
+	reponsetable = ask ("3- Voulez-vous intégrer la table communale livrée : N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la couche Géobase ?", "OUI", "NON")
+
+	If reponsetable = "T" then
+
+		reponsecorrige = ask ("3- S'agit-il de la version CORRIGEE à convertir ?", "OUI", "NON")
+
+		If reponsecorrige = "T" then
+			EXTENSION = "_CORRIGE"
+
+		Else
+			EXTENSION = ""
+	
+		End if
+
+		Print "--"
+		Print "3- Import de la table communale "+REPERTOIRESIG+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la Géobase acceptée"
+		Print "--"
+		
+		If FORMATCOUCHE = "shp"	then
+			Register Table REPERTOIRESIG+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".shp" TYPE SHAPEFILE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000) PersistentCache Off regionstyle Pen (1,2,0)  Brush (2,16777215,16777215)  Into REPTEMP+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+			Print "Enregistrement de la Couche ArcVIew "+REPERTOIRESIG+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".shp vers la Table temporaire MapINFO "+REPTEMP+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+			Open Table REPTEMP+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB" as TEMPORAIRE
+			Print "Ouverture de la Table temporaire "+REPTEMP+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+			
+		Else
+			Open Table REPERTOIRESIG+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB" as TEMPORAIRE
+			Print "Ouverture de la Table "+REPERTOIRESIG+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB"
+			
+		End If
+
+		Commit Table TEMPORAIRE  As REPCOMMUNAL+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB" TYPE NATIVE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000)
+		Print "Sauvegarde de la Table temporaire N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB dans la Géobase de Consultation à l'emplacement : "+REPCOMMUNAL+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+		Close Table TEMPORAIRE
+
+		Open Table REPCOMMUNAL+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB" Interactive
+		Print "Ouverture de la Table "+REPCOMMUNAL+"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		' peut-être mettre en place ici une requête permettant d'afficher les champs de valeur'
+		
+		reponsetable = ask ("3- Voulez-vous forcer la mise à jour des données attributaires de  N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+		If reponsetable = "T" then
+		Print "3-Acceptation pour forcer la mise à jour des données attributaires de  N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+		
+			reponsetable = ask ("3- Voulez-vous mettre à jour le champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" Set DATAPPRO = ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+				Print "3-Mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			Else
+				Print "3-Refus de mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			End If
+			
+			reponsetable = ask ("3- Voulez-vous mettre à jour le champs [INSEE] avec la valeur : "+INSEECOMMUNE+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" Set INSEE = INSEECOMMUNE
+				Print "Mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			Else
+				Print "3-Refus de mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			End If
+
+			reponsetable = ask ("3- Voulez-vous mettre à jour le champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" Set URLFIC = "http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "3-Refus de mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+
+			reponsetable = ask ("3- Voulez-vous mettre à jour le champs [NOMFIC] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" Set NOMFIC = "38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [NOMFIC] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?"
+			Else
+				Print "3-Refus de mise à jour du champs [INSEE] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?"
+			End If
+			
+		Else
+			Print "3-Refus de forcer la mise à jour des données attributaires de N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+		End If
+
+		Commit Table "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" Interactive
+		Print "Sauvegarde de la table N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB","F",TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+		Pack table "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" Graphic Data
+		Print "Compactage de la table N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		Print "3- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_SURF"+EXTENSION+".SHP dans la table communale N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB réalisée pour "+TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+		'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+		' Procédure TROIS BIS
+		' Importer la table communale N_PRESCRIPTION_SURF_38XXX_038.TAB de la Géobase 
+		'              dans la couche départementale N_PRESCRIPTION_SURF_038.TAB
+		'--------------------------------------------------------------------------------------
+
+		If ETATDOC="03" then
+			Print "--"
+			Print "3bis- Ajout de la table communale N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB à la couche départementale N_PRESCRIPTION_SURF_038.TAB car document opposable"
+			Print "--"
+
+			Open Table GBPROD+"N_PRESCRIPTION_SURF_038.TAB" Interactive
+			Print "Ouverture de la Table "+GBPROD+"N_PRESCRIPTION_SURF_038.TAB"
+
+' ajout version 2.1.1
+			If ColumnInfo("N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", "COL1", COL_INFO_NAME) = "ID_MAP" Then
+				Select * from "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_PRESCRIPTION_SURF_038 ( ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_PRESCRIPTION_SURF_038.TAB"
+
+
+			Else
+				Alter Table "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" ( add ID_MAP Char(10) order ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID) Interactive
+				Print "Ajout du Champs [ID_MAP] Char(10)"
+				
+				Select * from "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_PRESCRIPTION_SURF_038 ( ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_PRESCRIPTION_SURF_038.TAB"
+			End If
+' fin ajout version 2.1.1
+
+			Insert Into N_PRESCRIPTION_SURF_038 ( ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+			Print "Ajout des "+TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_PRESCRIPTION_SURF_038.TAB"
+
+			Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_PRESCRIPTION_SURF_038.TAB","T",TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+			Select * from N_PRESCRIPTION_SURF_038 where INSEE="38"+Right$(INSEECOMMUNE,3) And GB_IDUSER ="" into Selection_MAJ
+
+			Update Selection_MAJ Set GB_IDUSER = AGENT
+			Print "Mise-à-jour du champs [GB_IDUSER] avec la valeur "+AGENT+" pour la séléction"
+
+			Update Selection_MAJ Set GB_DDMOD = CurDate( )
+			Print "Mise-à-jour du champs [GB_DDMOD] avec la date du jour pour la séléction"
+
+			Commit Table N_PRESCRIPTION_SURF_038 Interactive
+
+'			Pack table "N_PRESCRIPTION_SURF_038" Graphic Data
+'			Print "Compactage de la table N_PRESCRIPTION_SURF_038.TAB terminé"
+
+			Print "3bis- Intégration de la Table N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038 dans la table départementale N_PRESCRIPTION_SURF_038.TAB réalisée pour "+TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+	
+		Else
+			Print "--"
+			Print "3bis- Pas d'Ajout de la table communale N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038 à la couche départementale N_PRESCRIPTION_SURF_038.TAB car document non opposable"
+			Print "--"
+
+		End if
+	
+		Note "3- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_SURF"+EXTENSION+".SHP réalisée pour "+TableInfo ( "N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+'		Close Table N_PRESCRIPTION_SURF_038 Interactive
+'		Print "Fermeture de la table N_PRESCRIPTION_SURF_038.TAB"
+'		Close Table "N_PRESCRIPTION_SURF"+Right$(INSEECOMMUNE,3)+"_038" Interactive
+'		Print "Fermeture de la table N_PRESCRIPTION_SURF"+Right$(INSEECOMMUNE,3)+"_038.TAB"
+
+	Else
+		Print "--"
+		Print "3- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_SURF.SHP dans la table communale N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB et la table départementale N_PRESCRIPTION_SURF_038.TAB refusée"
+		Print "--"
+	End if
+	
+Else
+	Print "--"
+	Print "3- Pas d'Intégration vers N_PRESCRIPTION_SURF_"+INSEECOMMUNE+"_038.TAB car pas de prescriptions pour les cartes communales"
+	Print "--"
+
+End if	
+	
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure QUATRE
+' Importer la table N_PRESCRIPTION_LIN_38XXX_038.TAB de la livraison COVADIS
+'--------------------------------------------------------------------------------------
+
+If TYPEDOCU <> "CC" then
+	reponsetable = ask ("4- Voulez-vous intégrer la table communale livrée : N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la couche Géobase ?", "OUI", "NON")
+
+	If reponsetable = "T" then
+
+		reponsecorrige = ask ("4- S'agit-il de la version CORRIGEE à convertir ?", "OUI", "NON")
+
+		If reponsecorrige = "T" then
+			EXTENSION = "_CORRIGE"
+
+		Else
+			EXTENSION = ""
+	
+		End if
+
+		Print "--"
+		Print "4- Import de la table communale "+REPERTOIRESIG+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la Géobase acceptée"
+		Print "--"
+		
+		If FORMATCOUCHE = "shp"	then
+			Register Table REPERTOIRESIG+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038"+EXTENSION+".shp" TYPE SHAPEFILE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000) PersistentCache Off regionstyle Pen (1,2,0)  Brush (2,16777215,16777215)  Into REPTEMP+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB"
+			Print "Enregistrement de la Couche ArcVIew "+REPERTOIRESIG+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038"+EXTENSION+".shp vers la Table temporaire MapINFO "+REPTEMP+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB"
+			Open Table REPTEMP+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB" as TEMPORAIRE
+			Print "Ouverture de la Table temporaire "+REPTEMP+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+EXTENSION+"_038.TAB"
+			
+		Else
+			Open Table REPERTOIRESIG+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB" as TEMPORAIRE
+			Print "Ouverture de la Table "+REPERTOIRESIG+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB"
+			
+		End If
+
+		Commit Table TEMPORAIRE  As REPCOMMUNAL+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB" TYPE NATIVE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000)
+		Print "Sauvegarde de la Table temporaire N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB dans la Géobase de Consultation à l'emplacement : "+REPCOMMUNAL+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB"
+		Close Table TEMPORAIRE
+
+		Open Table REPCOMMUNAL+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB" Interactive
+		Print "Ouverture de la Table "+REPCOMMUNAL+"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB"
+
+		' peut-être mettre en place ici une requête permettant d'afficher les champs de valeur'
+		
+		reponsetable = ask ("4- Voulez-vous forcer la mise à jour des données attributaires de  N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+		If reponsetable = "T" then
+		Print "4-Acceptation pour forcer la mise à jour des données attributaires de  N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB"
+		
+			reponsetable = ask ("4- Voulez-vous mettre à jour le champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" Set DATAPPRO = ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+				Print "4-Mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			Else
+				Print "4-Refus de mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			End If
+			
+			reponsetable = ask ("4- Voulez-vous mettre à jour le champs [INSEE] avec la valeur : "+INSEECOMMUNE+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" Set INSEE = INSEECOMMUNE
+				Print "Mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			Else
+				Print "4-Refus de mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			End If
+
+			reponsetable = ask ("4- Voulez-vous mettre à jour le champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" Set URLFIC = "http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "4-Refus de mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+			
+			reponsetable = ask ("4- Voulez-vous mettre à jour le champs [NOMFIC] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" Set NOMFIC = "38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [NOMFIC] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?"
+			Else
+				Print "4-Refus de mise à jour du champs [INSEE] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?"
+			End If
+			
+		Else
+			Print "4-Refus de forcer la mise à jour des données attributaires de N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB"
+		End If
+
+		Commit Table "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" Interactive
+		Print "Sauvegarde de la table N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB"
+
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB","F",TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+		Pack table "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" Graphic Data
+		Print "Compactage de la table N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB"
+
+		Print "4- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_LIN"+EXTENSION+".SHP dans la table communale N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB réalisée pour "+TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+		'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+		' Procédure QUATRE BIS
+		' Importer la table communale N_PRESCRIPTION_LIN_38XXX_038.TAB de la Géobase 
+		'              dans la couche départementale N_PRESCRIPTION_LIN_038.TAB
+		'--------------------------------------------------------------------------------------
+
+		If ETATDOC="03" then
+			Print "--"
+			Print "4bis- Ajout de la table communale N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB à la couche départementale N_PRESCRIPTION_LIN_038.TAB car document opposable"
+			Print "--"
+
+			Open Table GBPROD+"N_PRESCRIPTION_LIN_038.TAB" Interactive
+			Print "Ouverture de la Table "+GBPROD+"N_PRESCRIPTION_LIN_038.TAB"
+
+' ajout version 2.1.1
+			If ColumnInfo("N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", "COL1", COL_INFO_NAME) = "ID_MAP" Then
+				Select * from "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_PRESCRIPTION_LIN_038 ( ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_PRESCRIPTION_LIN_038.TAB"
+
+
+			Else
+				Alter Table "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" ( add ID_MAP Char(10) order ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID) Interactive
+				Print "Ajout du Champs [ID_MAP] Char(10)"
+				
+				Select * from "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_PRESCRIPTION_LIN_038 ( ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_PRESCRIPTION_LIN_038.TAB"
+			End If
+' fin ajout version 2.1.1
+
+			Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_PRESCRIPTION_LIN_038.TAB","T",TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+			Select * from N_PRESCRIPTION_LIN_038 where INSEE="38"+Right$(INSEECOMMUNE,3) And GB_IDUSER ="" into Selection_MAJ
+
+			Update Selection_MAJ Set GB_IDUSER = AGENT
+			Print "Mise-à-jour du champs [GB_IDUSER] avec la valeur "+AGENT+" pour la séléction"
+
+			Update Selection_MAJ Set GB_DDMOD = CurDate( )
+			Print "Mise-à-jour du champs [GB_DDMOD] avec la date du jour pour la séléction"
+
+			Commit Table N_PRESCRIPTION_LIN_038 Interactive
+
+'			Pack table "N_PRESCRIPTION_LIN_038" Graphic Data
+'			Print "Compactage de la table N_PRESCRIPTION_LIN_038.TAB terminé"
+
+			Print "4bis- Intégration de la Table N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038 dans la table départementale N_PRESCRIPTION_LIN_038.TAB réalisée pour "+TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+	
+		Else
+			Print "--"
+			Print "4bis- Pas d'Ajout de la table communale N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038 à la couche départementale N_PRESCRIPTION_LIN_038.TAB car document non opposable"
+			Print "--"
+
+		End if
+	
+		Note "4- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_LIN"+EXTENSION+".SHP réalisée pour "+TableInfo ( "N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+'		Close Table N_PRESCRIPTION_LIN_038 Interactive
+'		Print "Fermeture de la table N_PRESCRIPTION_LIN_038.TAB"
+'		Close Table "N_PRESCRIPTION_LIN"+Right$(INSEECOMMUNE,3)+"_038" Interactive
+'		Print "Fermeture de la table N_PRESCRIPTION_LIN"+Right$(INSEECOMMUNE,3)+"_038.TAB"
+
+	Else
+		Print "--"
+		Print "4- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_LIN.SHP dans la table communale N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB et la table départementale N_PRESCRIPTION_LIN_038.TAB refusée"
+		Print "--"
+	End if
+	
+Else
+	Print "--"
+	Print "4- Pas d'Intégration vers N_PRESCRIPTION_LIN_"+INSEECOMMUNE+"_038.TAB car pas de prescriptions pour les cartes communales"
+	Print "--"
+
+End if	
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure CINQ
+' Importer la table N_PRESCRIPTION_PCT_38XXX_038.TAB de la livraison COVADIS
+'--------------------------------------------------------------------------------------
+
+If TYPEDOCU <> "CC" then
+	reponsetable = ask ("5- Voulez-vous intégrer la table communale livrée : N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la couche Géobase ?", "OUI", "NON")
+
+	If reponsetable = "T" then
+
+		reponsecorrige = ask ("5- S'agit-il de la version CORRIGEE à convertir ?", "OUI", "NON")
+
+		If reponsecorrige = "T" then
+			EXTENSION = "_CORRIGE"
+
+		Else
+			EXTENSION = ""
+	
+		End if
+
+		Print "--"
+		Print "5- Import de la table communale "+REPERTOIRESIG+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la Géobase acceptée"
+		Print "--"
+		
+		If FORMATCOUCHE = "shp"	then
+			Register Table REPERTOIRESIG+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038"+EXTENSION+".shp" TYPE SHAPEFILE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000) PersistentCache Off regionstyle Pen (1,2,0)  Brush (2,16777215,16777215)  Into REPTEMP+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+			Print "Enregistrement de la Couche ArcVIew "+REPERTOIRESIG+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038"+EXTENSION+".shp vers la Table temporaire MapINFO "+REPTEMP+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+			Open Table REPTEMP+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB" as TEMPORAIRE
+			Print "Ouverture de la Table temporaire "+REPTEMP+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+			
+		Else
+			Open Table REPERTOIRESIG+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB" as TEMPORAIRE
+			Print "Ouverture de la Table "+REPERTOIRESIG+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB"
+			
+		End If
+
+		Commit Table TEMPORAIRE  As REPCOMMUNAL+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB" TYPE NATIVE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000)
+		Print "Sauvegarde de la Table temporaire N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB dans la Géobase de Consultation à l'emplacement : "+REPCOMMUNAL+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+		Close Table TEMPORAIRE
+
+		Open Table REPCOMMUNAL+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB" Interactive
+		Print "Ouverture de la Table "+REPCOMMUNAL+"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+
+		' peut-être mettre en place ici une requête permettant d'afficher les champs de valeur'
+		
+		reponsetable = ask ("5- Voulez-vous forcer la mise à jour des données attributaires de  N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+		If reponsetable = "T" then
+		Print "5-Acceptation pour forcer la mise à jour des données attributaires de  N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+		
+			reponsetable = ask ("5- Voulez-vous mettre à jour le champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" Set DATAPPRO = ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+				Print "5-Mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			Else
+				Print "5-Refus de mise à jour du champs [DATAPPRO] avec la valeur : "+ANNEEAPPRO+MOISAPPRO+JOURAPPRO
+			End If
+			
+			reponsetable = ask ("5- Voulez-vous mettre à jour le champs [INSEE] avec la valeur : "+INSEECOMMUNE+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" Set INSEE = INSEECOMMUNE
+				Print "Mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			Else
+				Print "5-Refus de mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			End If
+
+			reponsetable = ask ("5- Voulez-vous mettre à jour le champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" Set URLFIC = "http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "5-Refus de mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+			
+			reponsetable = ask ("5- Voulez-vous mettre à jour le champs [NOMFIC] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" Set NOMFIC = "38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [NOMFIC] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?"
+			Else
+				Print "5-Refus de mise à jour du champs [INSEE] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?"
+			End If
+			
+		Else
+			Print "5-Refus de forcer la mise à jour des données attributaires de N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+		End If
+
+		Commit Table "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" Interactive
+		Print "Sauvegarde de la table N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB","F",TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+		Pack table "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" Graphic Data
+		Print "Compactage de la table N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB"
+
+		Print "5- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_LIN"+EXTENSION+".SHP dans la table communale N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB réalisée pour "+TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+		'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+		' Procédure CINQ BIS
+		' Importer la table communale N_PRESCRIPTION_PCT_38XXX_038.TAB de la Géobase 
+		'              dans la couche départementale N_PRESCRIPTION_PCT_038.TAB
+		'--------------------------------------------------------------------------------------
+
+		If ETATDOC="03" then
+			Print "--"
+			Print "5bis- Ajout de la table communale N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB à la couche départementale N_PRESCRIPTION_PCT_038.TAB car document opposable"
+			Print "--"
+
+			Open Table GBPROD+"N_PRESCRIPTION_PCT_038.TAB" Interactive
+			Print "Ouverture de la Table "+GBPROD+"N_PRESCRIPTION_PCT_038.TAB"
+			
+' ajout version 2.1.1
+			If ColumnInfo("N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", "COL1", COL_INFO_NAME) = "ID_MAP" Then
+				Select * from "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_PRESCRIPTION_PCT_038 ( ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_PRESCRIPTION_PCT_038.TAB"
+
+
+			Else
+				Alter Table "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" ( add ID_MAP Char(10) order ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID) Interactive
+				Print "Ajout du Champs [ID_MAP] Char(10)"
+				
+				Select * from "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_PRESCRIPTION_PCT_038 ( ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID ) Select ID_MAP,LIBELLE,TXT,TYPEPSC,NOMFIC,URLFIC,INSEE,DATAPPRO,DATVALID From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_PRESCRIPTION_PCT_038.TAB"
+			End If
+' fin ajout version 2.1.1
+
+			Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_PRESCRIPTION_PCT_038.TAB","T",TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+			Select * from N_PRESCRIPTION_PCT_038 where INSEE="38"+Right$(INSEECOMMUNE,3) And GB_IDUSER ="" into Selection_MAJ
+
+			Update Selection_MAJ Set GB_IDUSER = AGENT
+			Print "Mise-à-jour du champs [GB_IDUSER] avec la valeur "+AGENT+" pour la séléction"
+
+			Update Selection_MAJ Set GB_DDMOD = CurDate( )
+			Print "Mise-à-jour du champs [GB_DDMOD] avec la date du jour pour la séléction"
+
+			Commit Table N_PRESCRIPTION_PCT_038 Interactive
+
+'			Pack table "N_PRESCRIPTION_PCT_038" Graphic Data
+'			Print "Compactage de la table N_PRESCRIPTION_PCT_038.TAB terminé"
+
+			Print "5bis- Intégration de la Table N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038 dans la table départementale N_PRESCRIPTION_PCT_038.TAB réalisée pour "+TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+	
+		Else
+			Print "--"
+			Print "5bis- Pas d'Ajout de la table communale N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038 à la couche départementale N_PRESCRIPTION_PCT_038.TAB car document non opposable"
+			Print "--"
+
+		End if
+	
+		Note "5- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_LIN"+EXTENSION+".SHP réalisée pour "+TableInfo ( "N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+'		Close Table N_PRESCRIPTION_PCT_038 Interactive
+'		Print "Fermeture de la table N_PRESCRIPTION_PCT_038.TAB"
+'		Close Table "N_PRESCRIPTION_PCT"+Right$(INSEECOMMUNE,3)+"_038" Interactive
+'		Print "Fermeture de la table N_PRESCRIPTION_PCT"+Right$(INSEECOMMUNE,3)+"_038.TAB"
+
+	Else
+		Print "--"
+		Print "5- Intégration de la Table 38"+Right$(INSEECOMMUNE,3)+"_PRESCRIPTION_LIN.SHP dans la table communale N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB et la table départementale N_PRESCRIPTION_PCT_038.TAB refusée"
+		Print "--"
+	End if
+	
+Else
+	Print "--"
+	Print "5- Pas d'Intégration vers N_PRESCRIPTION_PCT_"+INSEECOMMUNE+"_038.TAB car pas de prescriptions pour les cartes communales"
+	Print "--"
+
+End if
+
+'----------COMMENTAIRE SUR LE MODULE-------------------------------------------------------------------
+'        Procédure SIX
+' Importer les tables des cartes communales 38XXX_ELE_PAYSAGE_SURF.SHP et/ou 38XXX_PREEMPTION_SURF.SHP
+'      ou bien la couche communale  38XXX_INFORMATION_SURF.SHP
+'              dans la couche communale N_INFO_SURFXXX_038.TAB
+'------------------------------------------------------------------------------------------------------
+
+If TYPEDOCU = "CC" then
+
+	'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+	'        Procédure SIXCC : CARTE COMMUNALE
+	'              dans la couche communale N_INFO_SURFXXX_038.TAB
+	'--------------------------------------------------------------------------------------
+
+'	NOTE "6- Le Module des cartes communales n'a pas été intégré, Aucune donnée ne sera intégrée pour cette couche"
+
+	reponsetable = ask ("6- Voulez-vous intégrer la table communale livrée : N_INFO_SURF_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la couche Géobase N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+	If reponsetable = "T" then
+
+		reponsecorrige = ask ("6- S'agit-il de la version CORRIGEE à convertir ?", "OUI", "NON")
+
+		If reponsecorrige = "T" then
+			EXTENSION = "_CORRIGE"
+
+		Else
+			EXTENSION = ""
+
+		End if
+
+		Print "--"
+		Print "6- Import de la table communale "+REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038"+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la Géobase acceptée"
+		Print "--"
+
+		If FORMATCOUCHE = "shp" then
+			Register Table REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".shp"  TYPE SHAPEFILE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000) PersistentCache Off regionstyle Pen (1,2,0)  Brush (2,16777215,16777215)  Into REPTEMP+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+			Print "Enregistrement de la Couche ArcVIew "+REPERTOIRESIG+EXTENSION+"N_INFO_SURF_"+INSEECOMMUNE+"038"+EXTENSION+".shp vers la Table temporaire MapINFO "+REPTEMP+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+			Open Table REPTEMP+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB" as TEMPORAIRE
+			Print "Ouverture de la Table temporaire "+REPTEMP+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		Else
+			Open Table REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB" as TEMPORAIRE
+			Print "Ouverture de la Table temporaire "+REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB"
+			
+		End If
+		
+		Commit Table TEMPORAIRE  As REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB" TYPE NATIVE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000)
+		Print "Sauvegarde de la Table temporaire N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB dans la Géobase de Consultation à l'emplacement : "+REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+		Close Table TEMPORAIRE
+
+		Open Table REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB" Interactive
+		Print "Ouverture de la Table "+REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		' peut-être mettre en place ici une requête permettant d'afficher les champs de valeurs"
+		
+		reponsetable = ask ("6- Voulez-vous forcer la mise à jour des données attributaires de N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+		If reponsetable = "T" then
+		Print "6-Acceptation pour forcer la mise à jour des données attributaires de  N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+		
+			reponsetable = ask ("6- Voulez-vous mettre à jour le champs [INSEE] avec la valeur : "+INSEECOMMUNE+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_INFO_SURF_"+INSEECOMMUNE+"_038" Set INSEE = INSEECOMMUNE
+				Print "Mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			Else
+				Print "6-Refus de mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			End If
+
+			reponsetable = ask ("6- Voulez-vous mettre à jour le champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_INFO_SURF_"+INSEECOMMUNE+"_038" Set URLFIC = "http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "6-Refus de mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+			
+			reponsetable = ask ("6- Voulez-vous mettre à jour le champs [NOMFIC] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_INFO_SURF_"+INSEECOMMUNE+"_038" Set NOMFIC = INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "6-Refus de mise à jour du champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+		
+		Else
+			Print "6-Refus de forcer la mise à jour des données attributaires de N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+		End If
+		
+		Commit Table "N_INFO_SURF_"+INSEECOMMUNE+"_038" Interactive
+		Print "Sauvegarde de la table N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB","F",TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+	
+		Pack Table "N_INFO_SURF_"+INSEECOMMUNE+"_038" Graphic Data
+		Print "Compactage de la table N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+		
+		Print "6- Intégration de la Table N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+"."+FORMATCOUCHE+" dans la table communale N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB réalisée pour "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+		
+		
+	'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+	'        Procédure SIXCCBIS
+	' Importer la table communale N_INFO_SURF_38XXX_038.TAB de la Géobase 
+	'              dans la couche départementale N_INFO_SURF_038.TAB
+	'--------------------------------------------------------------------------------------
+	
+		If ETATDOC="03" then
+			Print "--"
+			Print "6bis-Ajout de la table communale N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB à la couche départementale N_INFO_SURF_038.TAB car document opposable"
+			Print "--"
+
+'			Open Table REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB" Interactive
+'			Print "Ouverture de la Table "+REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+			Open Table GBPROD+"N_INFO_SURF_038.TAB" Interactive
+			Print "Ouverture de la Table "+GBPROD+"N_INFO_SURF_038.TAB"
+
+' mise à jour du champs Typei avec Typep si Typei est vide et Typep est non vide
+' à vérifier
+			Select * from "N_INFO_SURF_"+INSEECOMMUNE+"_038" where Typei = "" and Typep <> "" into RqMAJ
+			Update RqMAJ Set Typei = Typep
+			Note "Déplacement des valeurs du champs [Typep] vers [Typei] pour "+TableInfo ( RqMAJ, TAB_INFO_NROWS)+" objets"
+			Print "Déplacement des valeurs du champs [Typep] vers [Typei] pour "+TableInfo ( RqMAJ, TAB_INFO_NROWS)+" objets"
+			
+' ajout version 2.1.1
+			If ColumnInfo("N_INFO_SURF_"+INSEECOMMUNE+"_038", "COL1", COL_INFO_NAME) = "ID_MAP" Then
+				select * from "N_INFO_SURF_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_INFO_SURF_038 ( ID_MAP,LIBELLE,TXT,TYPEINF,NOMFIC,URLFIC,INSEE) Select ID_MAP,LIBELLE,TXT,TYPEI,NOMFIC,URLFIC,INSEE From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_INFO_SURF_038.TAB"
+				Print "Déplacement des données du champs [TYPEI] vers le champs [TYPEINF]"
+
+			Else
+				Alter Table "N_INFO_SURF_"+INSEECOMMUNE+"_038" ( add ID_MAP Char(10) order ID_MAP,LIBELLE,TXT,TYPEI,NOMFIC,URLFIC,INSEE) Interactive
+				Print "Ajout du Champs [ID_MAP] Char(10)"
+				
+				select * from "N_INFO_SURF_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_INFO_SURF_038 ( ID_MAP,LIBELLE,TXT,TYPEINF,NOMFIC,URLFIC,INSEE) Select ID_MAP,LIBELLE,TXT,TYPEI,NOMFIC,URLFIC,INSEE From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_INFO_SURF_038.TAB"
+				Print "Déplacement des données du champs [TYPEI] vers le champs [TYPEINF]"
+			End If
+' fin ajout version 2.1.1
+
+			Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_INFO_SURF_038.TAB","T",TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+			Select * from N_INFO_SURF_038 where INSEE="38"+Right$(INSEECOMMUNE,3) And GB_IDUSER ="" into Selection_MAJ
+		
+			Update Selection_MAJ Set GB_IDUSER = AGENT
+			Print "Mise-à-jour du champs [GB_IDUSER] avec la valeur "+AGENT+" pour la séléction"
+
+			Update Selection_MAJ Set GB_DDMOD = CurDate( )
+			Print "Mise-à-jour du champs [GB_DDMOD] avec la date du jour pour la séléction"
+
+			Commit Table N_INFO_SURF_038 Interactive
+
+'			Pack table "N_INFO_SURF_038" Graphic Data
+'			Print "Compactage de la table N_INFO_SURF_038.TAB terminé"
+
+			Print "6bis- Intégration de la Table N_INFO_SURF_"+INSEECOMMUNE+"_038 dans la table départementale N_INFO_SURF_038.TAB réalisée pour "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+		Else
+			Print "--"
+			Print "6bis- Pas d'Ajout de la table communale N_INFO_SURF_"+INSEECOMMUNE+"_038 à la couche départementale N_INFO_SURF_038.TAB car document non opposable"
+			Print "--"
+
+		End if
+	
+	Else
+		Print "--"
+		Print "6- Import de la table communale "+REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la Géobase refusée"
+		Print "--"
+	End if
+
+Else
+		
+	'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+	'        Procédure SIX
+	' Importer la table N_INFO_SURF_38XXX_038 de la livraison COVADIS
+	'              dans la couche communale N_INFO_SURF_38XXX_038.TAB
+	'--------------------------------------------------------------------------------------
+
+	reponsetable = ask ("6- Voulez-vous intégrer la table communale livrée : N_INFO_SURF_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la couche Géobase N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+	If reponsetable = "T" then
+
+		reponsecorrige = ask ("6- S'agit-il de la version CORRIGEE à convertir ?", "OUI", "NON")
+
+		If reponsecorrige = "T" then
+			EXTENSION = "_CORRIGE"
+
+		Else
+			EXTENSION = ""
+
+		End if
+
+		Print "--"
+		Print "6- Import de la table communale "+REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038"+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la Géobase acceptée"
+		Print "--"
+
+		If FORMATCOUCHE = "shp" then
+			Register Table REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".shp"  TYPE SHAPEFILE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000) PersistentCache Off regionstyle Pen (1,2,0)  Brush (2,16777215,16777215)  Into REPTEMP+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+			Print "Enregistrement de la Couche ArcVIew "+REPERTOIRESIG+EXTENSION+"N_INFO_SURF_"+INSEECOMMUNE+"038"+EXTENSION+".shp vers la Table temporaire MapINFO "+REPTEMP+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+			Open Table REPTEMP+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB" as TEMPORAIRE
+			Print "Ouverture de la Table temporaire "+REPTEMP+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		Else
+			Open Table REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB" as TEMPORAIRE
+			Print "Ouverture de la Table temporaire "+REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+".TAB"
+			
+		End If
+		
+		Commit Table TEMPORAIRE  As REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB" TYPE NATIVE Charset "WindowsLatin1" CoordSys Earth Projection 3, 33, "m", 3, 46.5, 44, 49.00000000002, 700000, 6600000 Bounds (75000, 6000000) (1275000, 7200000)
+		Print "Sauvegarde de la Table temporaire N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB dans la Géobase de Consultation à l'emplacement : "+REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+		Close Table TEMPORAIRE
+
+		Open Table REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB" Interactive
+		Print "Ouverture de la Table "+REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		' peut-être mettre en place ici une requête permettant d'afficher les champs de valeurs"
+		
+		reponsetable = ask ("6- Voulez-vous forcer la mise à jour des données attributaires de N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB ?", "OUI", "NON")
+
+		If reponsetable = "T" then
+		Print "6-Acceptation pour forcer la mise à jour des données attributaires de  N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+		
+			reponsetable = ask ("6- Voulez-vous mettre à jour le champs [INSEE] avec la valeur : "+INSEECOMMUNE+" ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_INFO_SURF_"+INSEECOMMUNE+"_038" Set INSEE = INSEECOMMUNE
+				Print "Mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			Else
+				Print "6-Refus de mise à jour du champs [INSEE] avec la valeur : "+INSEECOMMUNE
+			End If
+
+' ajout
+			reponsetable = ask ("6- Voulez-vous mettre à jour le champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_INFO_SURF_"+INSEECOMMUNE+"_038" Set URLFIC = "http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "6-Refus de mise à jour du champs [URLFIC] avec la valeur : http://piece-jointe-carto.developpement-durable.gouv.fr/DEPT038A/POS_PLU_CC/"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"/3_Reglement/"+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+'fin ajout
+			
+			reponsetable = ask ("6- Voulez-vous mettre à jour le champs [NOMFIC] avec la valeur : 38"+Right$(INSEECOMMUNE,3)+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf ?", "OUI", "NON")
+			If reponsetable = "T" then
+				Update "N_INFO_SURF_"+INSEECOMMUNE+"_038" Set NOMFIC = INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+				Print "Mise à jour du champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			Else
+				Print "6-Refus de mise à jour du champs [NOMFIC] avec la valeur : "+INSEECOMMUNE+"_reglement_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+".pdf"
+			End If
+		
+		Else
+			Print "6-Refus de forcer la mise à jour des données attributaires de N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+		End If
+		
+		Commit Table "N_INFO_SURF_"+INSEECOMMUNE+"_038" Interactive
+		Print "Sauvegarde de la table N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+		Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB","F",TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+	
+		Pack Table "N_INFO_SURF_"+INSEECOMMUNE+"_038" Graphic Data
+		Print "Compactage de la table N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+		
+		Print "6- Intégration de la Table N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+"."+FORMATCOUCHE+" dans la table communale N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB réalisée pour "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+		'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+		'        Procédure SIX BIS
+		' Importer la table communale N_INFO_SURF_38XXX_038.TAB de la Géobase 
+		'              dans la couche départementale N_INFO_SURF_038.TAB
+		'--------------------------------------------------------------------------------------
+
+		If ETATDOC="03" then
+			Print "--"
+			Print "6bis-Ajout de la table communale N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB à la couche départementale N_INFO_SURF_038.TAB car document opposable"
+			Print "--"
+
+			Open Table REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB" Interactive
+			Print "Ouverture de la Table "+REPCOMMUNAL+"N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB"
+
+			Open Table GBPROD+"N_INFO_SURF_038.TAB" Interactive
+			Print "Ouverture de la Table "+GBPROD+"N_INFO_SURF_038.TAB"
+
+' ajout version 2.1.1
+			If ColumnInfo("N_INFO_SURF_"+INSEECOMMUNE+"_038", "COL1", COL_INFO_NAME) = "ID_MAP" Then
+				select * from "N_INFO_SURF_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_INFO_SURF_038 ( ID_MAP,LIBELLE,TXT,TYPEINF,NOMFIC,URLFIC,INSEE) Select ID_MAP,LIBELLE,TXT,TYPEINF,NOMFIC,URLFIC,INSEE From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_INFO_SURF_038.TAB"
+
+			Else
+				Alter Table "N_INFO_SURF_"+INSEECOMMUNE+"_038" ( add ID_MAP Char(10) order ID_MAP,LIBELLE,TXT,TYPEINF,NOMFIC,URLFIC,INSEE) Interactive
+				Print "Ajout du Champs [ID_MAP] Char(10)"
+				
+				select * from "N_INFO_SURF_"+INSEECOMMUNE+"_038" into Selection_a_verser
+				Print "Selection de tous les objets de la couche N_INFO_SURF_"+INSEECOMMUNE+"_038.TAB, soit :"+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes"
+
+				Insert Into N_INFO_SURF_038 ( ID_MAP,LIBELLE,TXT,TYPEINF,NOMFIC,URLFIC,INSEE) Select ID_MAP,LIBELLE,TXT,TYPEINF,NOMFIC,URLFIC,INSEE From Selection_a_verser
+				Print "Ajout des "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" lignes de la sélection dans la Table N_INFO_SURF_038.TAB"
+			End If
+' fin ajout version 2.1.1
+			
+			Insert Into BDD_RECAP_GEOBASE_POS_PLU (TYPE, DATE,TYPEDOC,INSEE,ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER) Values ("Insersion", CurDate (),TYPEDOCU, INSEECOMMUNE, INSEECOMMUNE+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO,"N_INFO_SURF_038.TAB","T",TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS), AGENT )
+
+			Select * from N_INFO_SURF_038 where INSEE="38"+Right$(INSEECOMMUNE,3) And GB_IDUSER ="" into Selection_MAJ
+		
+			Update Selection_MAJ Set GB_IDUSER = AGENT
+			Print "Mise-à-jour du champs [GB_IDUSER] avec la valeur "+AGENT+" pour la séléction"
+
+			Update Selection_MAJ Set GB_DDMOD = CurDate( )
+			Print "Mise-à-jour du champs [GB_DDMOD] avec la date du jour pour la séléction"
+
+			Commit Table N_INFO_SURF_038 Interactive
+
+'			Pack table "N_INFO_SURF_038" Graphic Data
+'			Print "Compactage de la table N_INFO_SURF_038.TAB terminé"
+
+			Print "6bis- Intégration de la Table N_INFO_SURF_"+INSEECOMMUNE+"_038 dans la table départementale N_INFO_SURF_038.TAB réalisée pour "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+		Else
+			Print "--"
+			Print "6bis- Pas d'Ajout de la table communale N_INFO_SURF_"+INSEECOMMUNE+"_038 à la couche départementale N_INFO_SURF_038.TAB car document non opposable"
+			Print "--"
+
+		End if
+	
+		Note "6- Intégration de la Table N_INFO_SURF_"+INSEECOMMUNE+"_038"+EXTENSION+"."+FORMATCOUCHE+" réalisée pour "+TableInfo ( "N_INFO_SURF_"+INSEECOMMUNE+"_038", TAB_INFO_NROWS)+" objets"
+
+	'	Close Table N_INFO_SURF_038 Interactive
+	'	Print "Fermeture de la table N_INFO_SURF_038.TAB"
+	'	Close Table "N_INFO_SURF"+Right$(INSEECOMMUNE,3)+"_038" Interactive
+	'	Print "Fermeture de la table N_INFO_SURF"+Right$(INSEECOMMUNE,3)+"_038.TAB"
+
+	Else
+		Print "--"
+		Print "6- Import de la table communale "+REPERTOIRESIG+"N_INFO_SURF_"+INSEECOMMUNE+"_038."+FORMATCOUCHE+" de la commune "+INSEECOMMUNE+" dans la Géobase refusée"
+		Print "--"
+	End if
+	
+End if

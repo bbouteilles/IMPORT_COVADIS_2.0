@@ -1,0 +1,200 @@
+'Print Chr$(12) 'This statement clears the Message window
+Print "00_IMPORT_COVADIS_38XXX_v2.1.0.mb du 9 juillet 2014"
+Print "-"
+'----------Pour utiliser les variables MAPBASIC 9-----ne pas toucher-------------------------------
+INCLUDE "C:\Program Files (x86)\MapInfo\MapBasic\MAPBASIC.DEF"
+
+'----------DECLARATION DES VARIABLES-----ne pas toucher---------------------------------------------
+Dim reponse as logical
+Dim reponsetable as logical
+Dim reponsecorrige as logical
+Dim DATEDOCURBAPRECDENT as String
+Dim ETATDOC as String
+Dim INSEECOMMUNE as String
+Dim NOVERSION as String
+Dim TYPEDOCU as String
+Dim AGENT as String
+Dim JOURAPPRO as String
+Dim MOISAPPRO as String
+Dim ANNEEAPPRO as String
+Dim NOSIREN as String
+Dim REFENTIEL as String
+Dim ANNEEREFENTIEL as String
+Dim REPERTOIRESIG as String
+Dim REPCOVADIS as String
+Dim GBPROD as String
+Dim REPTEMP as String
+Dim REPCOMMUNAL as String
+Dim FORMATCOUCHE as String
+Dim EXTENSION as String
+Dim IMPORTELEMENTPAYSAGER as logical
+Dim IMPORTPREEMPTIONSURF as logical
+
+'-----------------------------------------------------------------------------------------------------------
+'----------SAISIE DES VARIABLES POUR LE DOCUMENT D'URBANISME A METTRE DANS LA GEOBASE-----------------------
+'-----------------------------------------------------------------------------------------------------------
+'----------prenom.nom de l'opérateur pour cette commune afin que ce soit saisi dans la Géobase de Production.
+AGENT="christophe.badol"
+ 
+'----------Code INSEE de la commune (5 caractères)
+INSEECOMMUNE="38347"
+
+'----------N° SIREN de la Commune (9 caractères du type 21DP0XXXA : DP (département) = 38, XXX = INSEE COMMUNE, A = clé)
+NOSIREN="213803471"			'9 caractères du type 21380XXXA : XXX = INSEE COMMUNE, A = clé
+
+'----------Type de document d'urbanisme soit "PLU", soit "POS"
+'Soit "PLU", soit "POS", soit "CC" pour carte communale
+TYPEDOCU="PLU" 
+
+'----------Indiquer le jour (sur 2 caractères) de la date d'approbation du document qui le rend opposable
+JOURAPPRO="06"
+
+'----------Indiquer le mois (sur 2 caractères) de la date d'approbation du document qui le rend opposable
+MOISAPPRO="12"
+
+'----------Indiquer l'année (sur 4 caractères) de la date d'approbation du document qui le rend opposable
+ANNEEAPPRO="2013"
+
+'----------Indiquer la date d'approbation du document d'urbanisme précédent au format AAAAMMJJ
+'(à regarder dans http://sudocu.application.i2)
+'"20000101" pour 01/01/2000 et "" si pas de document précédent
+DATEDOCURBAPRECDENT="20110923" 			
+
+'----------Etat juridique du document d'urbanisme
+' "01" pour En projet, "02" pour Arrêté, "03" pour Opposable, "04" pour Annulé, "05" pour Remplacé
+ETATDOC="03" 
+
+'----------Indiquer la version du document d'ubanisme
+'(à regarder dans http://sudocu.application.i2)
+NOVERSION="3"
+
+'----------Format des fichiers à importer : il y a deux formats importables : MapInfo ou Esri
+'FORMATCOUCHE="shp" pour le marché du Conseil Général
+'Pour un import au standard COVADIS2 indiquer le format des fichiers à importer
+FORMATCOUCHE="TAB"				'FORMATCOUCHE="shp" ou FORMATCOUCHE="TAB" en essayant de garder la casse (minuscule/majuscule)
+
+'----------Emplacement de la livraison de la commmune qui comporte les sous-répertoire des différents couches cartographiques vérifiées
+'----------Pour une livraison SPC, ne pas mettre le lien vers TAB_DDT ou TAB_CG, mais bien la racine de ces répertoires (toujours un '\' à la fin).
+' par exemple pour un: REPERTOIRESIG="V:\3-referentiel\PLU_POS_CC\Reception_EUROPRIM\02_lot2\38365_Saint-Baudille-de-la-Tour\Final_SIG_14062011\"
+'----------Pour une livraison COVADIS, mettre le lien du repertoire où se trouvent les fichiers cartographiques.
+REPERTOIRESIG="V:\5-PLU_POS_CC\38347_Roybon\38347_PLU_20131206\01_MAJ_DEPUIS_GEOBASE\38347_PLU_20110923\"
+
+'----------Nom du référentiel utilisé en saisie
+REFENTIEL="Cadastre DGFIP"  'ne pas toucher car toute la procédure doit se faire sur le Cadastre DGFIP
+'----------Date d'actualité du référentiel utilisé pour la numérisation de ces documents d'urbanismes
+ANNEEREFENTIEL="2011"		'actuellement tout se fait avec le cadastre 2011
+
+
+'-----------------------------------------------------------------------------------------------------------
+'-------------------------------    FIN DE SAISIE DES VARIABLES     ----------------------------------------
+'-----------------------------------------------------------------------------------------------------------
+
+'----------A ne pas toucher sauf si changement de lettre mappées pour accéder à la Géobase (toujours un '\' à la fin)
+REPTEMP="D:\_TEMP\"		'répertoire où sont sauvegardées les couches temporaires
+GBPROD="T:\AMENAGEMENT_URBANISME\N_ZONAGES_PLANIFICATION\"
+REPCOVADIS="Q:\CONSULTATION\AMENAGEMENT_URBANISME\N_ZONAGES_PLANIFICATION\PLU_POS_CC_DALLES\"+INSEECOMMUNE+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"\"
+REPCOMMUNAL=REPCOVADIS+"Donnees_geographiques\"
+
+
+'----------Fermeture de toutes les tables MapINFO déjà ouverte au cas où
+Close All Interactive
+
+' Ouverture de la table de memorisation des opérations faites dans la géobase
+Open Table "V:\3-referentiel\PLU_POS_CC\98_RECAP\BDD_RECAP_GEOBASE_POS_PLU.TAB" Interactive
+'local Open Table "E:\D38-SIG\3-referentiel\PLU_POS_CC\98_SUIVI\BDD_RECAP_GEOBASE_POS_PLU.TAB" Interactive
+
+Print "Récapitulatif des données saisies : Commune "+INSEECOMMUNE+", "+TYPEDOCU+" approuvé le "+JOURAPPRO+"/"+MOISAPPRO+"/"+ANNEEAPPRO+" dans sa version N°"+NOVERSION+" et avec un code état à : "+ETATDOC
+Print "Récap (suite) : date de la version précédente du document : "+DATEDOCURBAPRECDENT+", opérateur : "+AGENT+", n°SIREN commune : "+NOSIREN+" et année du "+REFENTIEL+" : "+ANNEEREFENTIEL 
+
+Select TABLE, sum(NBRE_LIGNES)"NOMBRE_LIGNES" from BDD_RECAP_GEOBASE_POS_PLU where INSEE =INSEECOMMUNE group by TABLE order by TABLE into "RECAP_COMMUNE_"+INSEECOMMUNE+"_DS_GEOBASE"
+Browse * From "RECAP_COMMUNE_"+INSEECOMMUNE+"_DS_GEOBASE"
+
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure ZERO Bis
+' Création des arborescences et procédure de tests pout voir si tout fonctionne
+'--------------------------------------------------------------------------------------
+
+reponse = ask ("0bis- Faut-il créer/initialiser les répertoires communaux de la géobase de consultation : \38"+Right$(INSEECOMMUNE,3)+"_"+TYPEDOCU+"_"+ANNEEAPPRO+MOISAPPRO+JOURAPPRO+"\ ?", "OUI", "NON")
+
+If reponse = "T" then
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS 		'remplacer cmd.exe /K par /C une fois débugage terminé
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS+"\Donnees_geographiques"
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS+"\Pieces_ecrites"
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS+"\Pieces_ecrites\1_Rapport_de_presentation"
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS+"\Pieces_ecrites\2_PADD"
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS+"\Pieces_ecrites\3_Reglement"
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS+"\Pieces_ecrites\4_Annexes"
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS+"\Pieces_ecrites\5_Orientations_amenagement"
+	Run Program "cmd.exe /C MKDIR "+REPCOVADIS+"\Pieces_ecrites\6_Documents_graphiques"
+
+	Run Program "cmd.exe /C MKDIR "+REPCOMMUNAL  		'remplacer cmd.exe /K par /C une fois débugage terminé
+	Print "-"
+	Print "0bis- Création des répertoires communaux de la géobase de consultation : "+REPCOMMUNAL
+
+Else
+	Print "-"
+	Print "0bis- Pas d'initialisation des répertoires communaux de la géobase de consultation : "+REPCOMMUNAL
+
+End if
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure d'intégration
+'  renvoi vers les modules intégration SPC ou intégration COVADIS2 
+'--------------------------------------------------------------------------------------
+
+Include "V:\3-referentiel\PLU_POS_CC\01_PROGRAMMATION\900_MODULE_COVADIS_01A06v2.1.0.mb"
+Include "V:\3-referentiel\PLU_POS_CC\01_PROGRAMMATION\900_MODULE_COVADIS_07A12v2.1.0.mb"
+'local Include "E:\D38-SIG\3-referentiel\PLU_POS_CC\01_PROGRAMMATION\900_MODULE_COVADIS_01A06v2.0.2.mb"
+'local Include "E:\D38-SIG\3-referentiel\PLU_POS_CC\01_PROGRAMMATION\900_MODULE_COVADIS_07A12v2.0.2.mb"
+
+Commit Table BDD_RECAP_GEOBASE_POS_PLU Interactive
+Pack table "BDD_RECAP_GEOBASE_POS_PLU" Data
+Print "Sauvegarde et compactage de la table BDD_RECAP_GEOBASE_POS_PLU.TAB terminé"
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure CONVERSION OGR2OGR
+'  Convertir les fichiers TAB communaux en SHP dans le répertoire communal de la Géobase 
+'--------------------------------------------------------------------------------------
+
+reponsetable = ask ("Voulez-vous convertir les fichiers MapINFO communaux en SHP ?", "OUI", "NON")
+
+If reponsetable = "T" then
+	Run Program "cmd.exe /K D:\00_PROG\convert_tab_shp.bat "+REPCOMMUNAL  		'remplacer cmd.exe /K par /C une fois débugage terminé
+	Run Program "cmd.exe /K D:\00_PROG\convert_tab_shp.bat "+REPCOVADIS  		'remplacer cmd.exe /K par /C une fois débugage terminé
+	Print "-"
+	Print "99- Accord pour la conversion ogr2org des fichiers TAB communaux en SHP du répertoire communal de la Géobase : "+REPCOVADIS
+	Print "99- Accord pour la conversion ogr2org des fichiers TAB communaux en SHP du répertoire communal de la Géobase : "+REPCOMMUNAL
+
+Else
+	Print "-"
+	Print "99- Refus de convertir via ogr2org les fichiers TAB communaux en SHP du répertoire communal de la Géobase : "+REPCOMMUNAL
+
+End if
+
+'----------COMMENTAIRE SUR LE MODULE---------------------------------------------------
+'        Procédure SYNTHESE
+'  Regrouper les résultats par COUCHES
+'--------------------------------------------------------------------------------------
+reponsetable = ask ("Voulez-vous afficher l'analyse du fichier de synthèse ?", "OUI", "NON")
+
+If reponsetable = "T" then
+
+	Select TABLE, sum(NBRE_LIGNES)"NBRE_LIGNES" from BDD_RECAP_GEOBASE_POS_PLU where DEPARTEMENTALE = "T" group by TABLE  order by TABLE  into Rq_RECAP_DEPARTEMENT
+	Browse * From Rq_RECAP_DEPARTEMENT
+
+	Select TABLE, sum(NBRE_LIGNES)"NBRE_OBJETS" from BDD_RECAP_GEOBASE_POS_PLU where INSEE =INSEECOMMUNE group by TABLE order by TABLE into "Rq_SYNTHESE_COMMUNE_"+INSEECOMMUNE
+	Browse * From "Rq_SYNTHESE_COMMUNE_"+INSEECOMMUNE 
+
+	Select DATE, TYPE, TYPEDOC, ID_DOC_URBA, TABLE, DEPARTEMENTALE, NBRE_LIGNES, GB_IDUSER from BDD_RECAP_GEOBASE_POS_PLU where INSEE = INSEECOMMUNE order by DATE into "Rq_TOUT_COMMUNE_"+INSEECOMMUNE
+	Browse * From "Rq_TOUT_COMMUNE_"+INSEECOMMUNE
+	
+	Select TABLE, sum(NBRE_LIGNES)"NBRE_OBJETS" , GB_IDUSER from BDD_RECAP_GEOBASE_POS_PLU where INSEE =INSEECOMMUNE and DATE=CurDate () group by TABLE order by TABLE into "Rq_SYNTHESE_"+INSEECOMMUNE+"_AUJOURDHUI"
+	Browse * From "Rq_SYNTHESE_"+INSEECOMMUNE+"_AUJOURDHUI"
+
+End If
+
+'Close All Interactive
+
+Print "-"
+Note "Fin de la procédure - Pensez à sauvegarder le contenu du compte rendu d'intégration dans le fichier RAP_INTEGRATION_"+INSEECOMMUNE+".txt"
